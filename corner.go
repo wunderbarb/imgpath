@@ -1,6 +1,9 @@
 package imgpath
 
-import "math"
+import (
+	"image"
+	"math"
+)
 
 // ContinuousInput is the input to methods ContinuousBrighter and ContinuousDarker.
 type ContinuousInput struct {
@@ -19,6 +22,7 @@ func (ip ImagePath) ContinuousBrighter(cai ContinuousInput) (score uint8, angle 
 	if vc >= cai.T {
 		return
 	}
+	ip.index = 0
 	p := cai.T - vc
 	var nn uint32
 	score = 0xFF
@@ -46,6 +50,7 @@ func (ip ImagePath) ContinuousDarker(cai ContinuousInput) (score uint8, angle fl
 	if vc <= cai.T {
 		return
 	}
+	ip.index = 0
 	p := vc - cai.T
 	var nn uint32
 	score = 0xFF
@@ -77,5 +82,68 @@ func (ip ImagePath) ContinuousBrighterAtLeast(cai ContinuousInput) (score uint8,
 // `T`.  It returns the score (the higher, the better) and the momentum `angle`.
 func (ip ImagePath) ContinuousDarkerAtLeast(cai ContinuousInput) (score uint8, ok bool) {
 	score, _, ok = ip.ContinuousBrighter(cai)
+	return
+}
+
+func (ip ImagePath) fast4Cascade(ci ContinuousInput) (score uint8, angle float64, dark bool, ok bool) {
+	score, angle, ok = ip.ContinuousBrighter(ci)
+	if ok {
+		dark = false
+		return
+	}
+	score, angle, ok = ip.ContinuousDarker(ci)
+	if ok {
+		dark = true
+		return
+	}
+	return
+}
+
+// CascadedFast calculates the cascaded fast of point x, y.
+// https://ealdea.github.io/VisionSETI/pdfs/cascaded-fast.pdf
+func CascadedFast(img *image.Gray, x, y int, t uint8) (score uint8, angle float64, ok bool) {
+	const (
+		alpha = math.Pi / 10
+		beta  = math.Pi / 8
+	)
+	C3.SetImage(img)
+	s1, a1, dark1, ok1 := C3.fast4Cascade(ContinuousInput{
+		X:      x,
+		Y:      y,
+		T:      t,
+		Length: 6,
+	})
+	if !ok1 {
+		ok = false
+		return
+	}
+	C4.SetImage(img)
+	s2, a2, dark2, ok2 := C4.fast4Cascade(ContinuousInput{
+		X:      x,
+		Y:      y,
+		T:      t,
+		Length: 9,
+	})
+	if !ok2 || dark1 != dark2 {
+		ok = false
+		return
+	}
+	C5.SetImage(img)
+	s3, a3, dark3, ok3 := C5.fast4Cascade(ContinuousInput{
+		X:      x,
+		Y:      y,
+		T:      t,
+		Length: 11,
+	})
+	if !ok3 || dark1 != dark3 {
+		ok = false
+		return
+	}
+	ok = math.Abs(a1-a3) <= alpha && math.Abs(a1-a2) <= beta
+	if !ok {
+		return
+	}
+	score = min(s1, s2, s3)
+	angle = a3
 	return
 }

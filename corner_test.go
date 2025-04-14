@@ -3,8 +3,10 @@
 package imgpath
 
 import (
+	"fmt"
 	"github.com/wunderbarb/test"
 	"math"
+	"path/filepath"
 	"testing"
 )
 
@@ -132,4 +134,15 @@ func TestImagePath_ContinuousBrighterAtLeast(t *testing.T) {
 		Length: 6,
 	})
 	require.False(ok)
+}
+
+func TestCascadedFast(t *testing.T) {
+	require, _ := test.Describe(t)
+
+	img, err := GrayFromFile(filepath.Join("testfixtures", "test5.png"))
+	isPanic(err)
+	s, a, ok := CascadedFast(img, 4, 4, 32)
+	require.True(ok)
+	require.Equal(2*math.Pi*6/20.0, s)
+	fmt.Println(a)
 }
