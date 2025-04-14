@@ -1,4 +1,5 @@
-// v0.1.0
+// v0.1.1
+// Author: DIEHL E.
 
 // Package imgpath manages operations on a path of pixels on a gray-scaled image.
 package imgpath
@@ -12,7 +13,9 @@ import (
 var ErrNoPath = errors.New("no path")
 
 type Pos struct {
+	// X is the horizontal coordinate.
 	X int
+	// Y is the vertical coordinate.
 	Y int
 }
 
@@ -22,6 +25,7 @@ type ImagePath struct {
 	index       int
 	img         *image.Gray
 	centerPoint Pos
+	cycled      bool
 }
 
 // New creates an ImagePath for the path `ps`.
@@ -43,6 +47,11 @@ func (ip ImagePath) All(fn func(v uint8, index int)) {
 	}
 }
 
+// Cycled is true if a full path has been explored.
+func (ip ImagePath) Cycled() bool {
+	return ip.cycled
+}
+
 // Len returns the number of pixels of the path.
 func (ip ImagePath) Len() int {
 	return len(ip.path)
@@ -54,13 +63,21 @@ func (ip *ImagePath) Next() uint8 {
 	ip.index++
 	if ip.index >= len(ip.path) {
 		ip.index = 0
+		ip.cycled = true
 	}
 	return v
 }
 
-// SetCenter defines the reference point of the path.
+// Reset resets the path to the first pixel.
+func (ip *ImagePath) Reset() {
+	ip.index = 0
+	ip.cycled = false
+}
+
+// SetCenter defines the reference point of the path.  It resets the cycle.
 func (ip *ImagePath) SetCenter(x int, y int) {
 	ip.centerPoint = Pos{x, y}
+	ip.Reset()
 }
 
 // SetImage defines the image that will be iterated.

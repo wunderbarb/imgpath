@@ -66,7 +66,23 @@ func initC3(file string) ImagePath {
 	isPanic(err)
 	c := C3
 	c.SetImage(img)
-	c.SetCenter(2, 2)
+	return c
+}
+
+func initC4(file string) ImagePath {
+	img, err := GrayFromFile(filepath.Join("testfixtures", file))
+	isPanic(err)
+	c := C4
+	c.SetImage(img)
+
+	return c
+}
+
+func initC5(file string) ImagePath {
+	img, err := GrayFromFile(filepath.Join("testfixtures", file))
+	isPanic(err)
+	c := C5
+	c.SetImage(img)
 	return c
 }
 

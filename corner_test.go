@@ -4,10 +4,11 @@ package imgpath
 
 import (
 	"fmt"
-	"github.com/wunderbarb/test"
 	"math"
 	"path/filepath"
 	"testing"
+
+	"github.com/wunderbarb/test"
 )
 
 func TestImagePath_ContinuousDarker(t *testing.T) {
@@ -117,7 +118,7 @@ func TestImagePath_ContinuousBrighterAtLeast(t *testing.T) {
 		Length: 6,
 	})
 	require.True(ok)
-	require.Equal(uint8(0xC5), s)
+	require.Equal(uint8(0xdd), s)
 	_, ok = c.ContinuousBrighterAtLeast(ContinuousInput{
 		X:      2,
 		Y:      2,

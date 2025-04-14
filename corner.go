@@ -46,6 +46,7 @@ func (ip ImagePath) ContinuousBrighter(cai ContinuousInput) (score uint8, angle 
 // ContinuousDarker checks whether the path as at least `Length` consecutive pixels darker with the threshold
 // `T`.  It returns the score (the higher, the better) and the momentum `angle`.
 func (ip ImagePath) ContinuousDarker(cai ContinuousInput) (score uint8, angle float64, ok bool) {
+	ip.SetCenter(cai.X, cai.Y)
 	vc := ip.grayCenter()
 	if vc <= cai.T {
 		return
@@ -74,14 +75,51 @@ func (ip ImagePath) ContinuousDarker(cai ContinuousInput) (score uint8, angle fl
 // ContinuousBrighterAtLeast checks whether the path as at least `Length` consecutive pixels brighter with the threshold
 // `T`.  It returns the score (the higher, the better) and the momentum `angle`.
 func (ip ImagePath) ContinuousBrighterAtLeast(cai ContinuousInput) (score uint8, ok bool) {
-	score, _, ok = ip.ContinuousBrighter(cai)
+	ip.SetCenter(cai.X, cai.Y)
+	vc := ip.grayCenter()
+	if vc >= 0xff-cai.T {
+		return
+	}
+	p := vc + cai.T
+	score = 0xFF
+	l := 0
+	ok = false
+	ip.Until(func(v uint8, index int) bool {
+		if ip.Next() >= p {
+			l++
+			score = min(ip.Next()-p, score)
+			if l < cai.Length {
+				return true
+			}
+			ok = true
+			return false
+		}
+		l = 0
+		score = 0xFF
+		return !ip.Cycled()
+	})
 	return
 }
 
 // ContinuousDarkerAtLeast checks whether the path as at least `Length` consecutive pixels darker with the threshold
 // `T`.  It returns the score (the higher, the better) and the momentum `angle`.
 func (ip ImagePath) ContinuousDarkerAtLeast(cai ContinuousInput) (score uint8, ok bool) {
-	score, _, ok = ip.ContinuousBrighter(cai)
+	ip.SetCenter(cai.X, cai.Y)
+	vc := ip.grayCenter()
+	p := cai.T - vc
+	score = 0xFF
+	l := 0
+	ip.Until(func(v uint8, index int) bool {
+		if ip.Next() <= p {
+			l++
+			score = min(p-ip.Next(), score)
+			if l >= cai.Length {
+				return true
+			}
+		}
+		l = 0
+		return !ip.Cycled()
+	})
 	return
 }
 
