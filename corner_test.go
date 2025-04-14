@@ -1,4 +1,5 @@
-// v0.1.0
+// v0.1.1
+// Author: wunderbarb
 
 package imgpath
 
@@ -87,7 +88,7 @@ func TestImagePath_ContinuousDarkerAtLeast(t *testing.T) {
 		Length: 6,
 	})
 	require.True(ok)
-	require.Equal(uint8(0x5f), s)
+	require.Equal(uint8(0x1), s)
 	_, ok = c.ContinuousDarkerAtLeast(ContinuousInput{
 		X:      2,
 		Y:      2,
@@ -118,7 +119,7 @@ func TestImagePath_ContinuousBrighterAtLeast(t *testing.T) {
 		Length: 6,
 	})
 	require.True(ok)
-	require.Equal(uint8(0xdd), s)
+	require.Equal(uint8(0xc5), s)
 	_, ok = c.ContinuousBrighterAtLeast(ContinuousInput{
 		X:      2,
 		Y:      2,
