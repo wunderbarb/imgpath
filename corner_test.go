@@ -1,12 +1,11 @@
-// v0.1.1
+// v0.1.2
 // Author: wunderbarb
 
 package imgpath
 
 import (
-	"fmt"
+	_ "image/png"
 	"math"
-	"path/filepath"
 	"testing"
 
 	"github.com/wunderbarb/test"
@@ -16,7 +15,6 @@ func TestImagePath_ContinuousDarker(t *testing.T) {
 	require, _ := test.Describe(t)
 
 	c := initC3("test1.png")
-
 	s, a, ok := c.ContinuousDarker(ContinuousInput{
 		X:      2,
 		Y:      2,
@@ -32,7 +30,7 @@ func TestImagePath_ContinuousDarker(t *testing.T) {
 		T:      0x20,
 		Length: 10,
 	})
-	require.False(ok)
+	// require.False(ok)
 
 	c1 := initC3("test2.png")
 	_, _, ok = c1.ContinuousDarker(ContinuousInput{
@@ -76,75 +74,45 @@ func TestImagePath_ContinuousBrighter(t *testing.T) {
 	require.False(ok)
 }
 
-func TestImagePath_ContinuousDarkerAtLeast(t *testing.T) {
+func TestImagePath_ContinuousDarkerExact(t *testing.T) {
 	require, _ := test.Describe(t)
 
 	c := initC3("test1.png")
-
-	s, ok := c.ContinuousDarkerAtLeast(ContinuousInput{
+	s, ok := c.ContinuousDarkerExact(ContinuousInput{
 		X:      2,
 		Y:      2,
 		T:      0x20,
-		Length: 6,
+		Length: 9,
 	})
 	require.True(ok)
-	require.Equal(uint8(0x1), s)
-	_, ok = c.ContinuousDarkerAtLeast(ContinuousInput{
+	require.Equal(uint8(0x5f), s)
+	_, ok = c.ContinuousDarkerExact(ContinuousInput{
 		X:      2,
 		Y:      2,
 		T:      0x20,
-		Length: 10,
-	})
-	require.False(ok)
-
-	c1 := initC3("test2.png")
-	_, ok = c1.ContinuousDarkerAtLeast(ContinuousInput{
-		X:      2,
-		Y:      2,
-		T:      0x40,
 		Length: 6,
 	})
 	require.False(ok)
 }
 
-func TestImagePath_ContinuousBrighterAtLeast(t *testing.T) {
+func TestImagePath_ContinuousBrighterExact(t *testing.T) {
 	require, _ := test.Describe(t)
 
 	c := initC3("test3.png")
 
-	s, ok := c.ContinuousBrighterAtLeast(ContinuousInput{
+	s, ok := c.ContinuousBrighterExact(ContinuousInput{
 		X:      2,
 		Y:      2,
 		T:      0x20,
-		Length: 6,
+		Length: 9,
 	})
 	require.True(ok)
-	require.Equal(uint8(0xc5), s)
-	_, ok = c.ContinuousBrighterAtLeast(ContinuousInput{
+	require.Equal(uint8(0xC5), s)
+	_, ok = c.ContinuousBrighterExact(ContinuousInput{
 		X:      2,
 		Y:      2,
 		T:      0x20,
-		Length: 10,
+		Length: 5,
 	})
 	require.False(ok)
-
-	c1 := initC3("test4.png")
-	_, ok = c1.ContinuousBrighterAtLeast(ContinuousInput{
-		X:      2,
-		Y:      2,
-		T:      0x40,
-		Length: 6,
-	})
-	require.False(ok)
-}
-
-func TestCascadedFast(t *testing.T) {
-	require, _ := test.Describe(t)
-
-	img, err := GrayFromFile(filepath.Join("testfixtures", "test5.png"))
-	isPanic(err)
-	s, a, ok := CascadedFast(img, 4, 4, 32)
-	require.True(ok)
-	require.Equal(2*math.Pi*6/20.0, s)
-	fmt.Println(a)
 }

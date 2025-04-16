@@ -1,4 +1,4 @@
-// v0.1.1
+// v0.1.2
 // Author: DIEHL E.
 
 // Package imgpath manages operations on a path of pixels on a gray-scaled image.
@@ -97,6 +97,18 @@ func (ip ImagePath) Until(fn func(v uint8, index int) bool) {
 			break
 		}
 	}
+}
+
+// Diff provides a slice of the difference between the path and the center pixel.  The first value corresponds to the
+// first pixel of the path.
+func (ip ImagePath) Diff() []int {
+	nn := make([]int, len(ip.path))
+	vv := ip.grayCenter()
+	ip.All(func(v uint8, index int) {
+		nn[index] = int(v) - int(vv)
+
+	})
+	return nn
 }
 
 // --------------------------

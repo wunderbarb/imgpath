@@ -59,6 +59,16 @@ func TestImagePath_Until(t *testing.T) {
 	require.Equal(8, cnt)
 }
 
+func TestImagePath_Threshold(t *testing.T) {
+	require, _ := test.Describe(t)
+
+	c := initC3("test1.png")
+
+	nn := c.Diff()
+	require.Len(nn, C3.Len())
+	require.Equal([]int{-223, -127, -223, -223, -223, -223, -223, -223, 0, 0, 0, -223}, nn)
+}
+
 // -----------------
 
 func initC3(file string) ImagePath {
