@@ -1,4 +1,4 @@
-// v0.2.0
+// v0.4.0
 // Author: wunderbarb
 // (c), Apr 2025
 
@@ -11,13 +11,50 @@ type ContinuousInput struct {
 	// Y is the vertical coordinate of the center.
 	Y int
 	// T is the threshold.
-	T      uint8
+	T uint8
+	// Length defines the size of the continuous segment.
 	Length int
 }
 
+type ContinuousOutput struct {
+	// Length is the number of consecutive pixels.
+	Length int
+	// Score is the score of the path.
+	Score uint8
+	// Angle is the angle of the path in degree.
+	Angle int
+	// Darker is true if the path is darker.
+	Darker bool
+}
+
+// Continuous checks whether the path has at least `Length` consecutive pixels brighter or darker with the threshold
+// `T`.  It returns the score (the higher, the better) and the momentum `angle`.  It returns the first encountered
+// successful sequence.  It returns the `Darker` flag to indicate whether the path is darker or brighter.
+func (ip ImagePath) Continuous(cai ContinuousInput) (ContinuousOutput, bool) {
+	co := ip.process(cai.X, cai.Y, cai.T, continuousBright)
+	if co.length >= cai.Length {
+		return ContinuousOutput{
+			Length: co.length,
+			Score:  uint8(co.score),
+			Angle:  co.angle,
+			Darker: false,
+		}, true
+	}
+	co = ip.process(cai.X, cai.Y, cai.T, continuousDark)
+	if co.length >= cai.Length {
+		return ContinuousOutput{
+			Length: co.length,
+			Score:  uint8(co.score),
+			Angle:  co.angle,
+			Darker: true,
+		}, true
+	}
+	return ContinuousOutput{}, false
+}
+
 // ContinuousBrighter checks whether the path as at least `Length` consecutive pixels brighter with the threshold
-// `T`.  It returns the score (the higher, the better) and the momentum `angle`.
-func (ip ImagePath) ContinuousBrighter(cai ContinuousInput) (uint8, float64, bool) {
+// `T`.  It returns the score (the higher, the better) and the momentum `angle` (in degrees).
+func (ip ImagePath) ContinuousBrighter(cai ContinuousInput) (uint8, int, bool) {
 	co := ip.process(cai.X, cai.Y, cai.T, continuousBright)
 	if co.length < cai.Length {
 		return 0, 0.0, false
@@ -37,8 +74,8 @@ func (ip ImagePath) ContinuousBrighterExact(cai ContinuousInput) (uint8, bool) {
 }
 
 // ContinuousDarker checks whether the path as at least `Length` consecutive pixels darker with the threshold
-// `T`.  It returns the score (the higher, the better) and the momentum `angle`.
-func (ip ImagePath) ContinuousDarker(cai ContinuousInput) (uint8, float64, bool) {
+// `T`.  It returns the score (the higher, the better) and the momentum `angle` (in degree).
+func (ip ImagePath) ContinuousDarker(cai ContinuousInput) (uint8, int, bool) {
 	co := ip.process(cai.X, cai.Y, cai.T, continuousDark)
 	if co.length < cai.Length {
 		return 0, 0.0, false

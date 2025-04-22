@@ -1,4 +1,4 @@
-// v0.1.2
+// v0.1.3
 // Author: DIEHL E.
 
 // Package imgpath manages operations on a path of pixels on a gray-scaled image.
@@ -47,6 +47,16 @@ func (ip ImagePath) All(fn func(v uint8, index int)) {
 	}
 }
 
+// Current returns the position relative to the center of the path of current index.
+func (ip ImagePath) Current() (int, int) {
+	return ip.path[ip.index].X, ip.path[ip.index].Y
+}
+
+// CurrentAbsolute returns the absolute position of the current index in the image.
+func (ip ImagePath) CurrentAbsolute() (int, int) {
+	return ip.centerPoint.X + ip.path[ip.index].X, ip.centerPoint.Y + ip.path[ip.index].Y
+}
+
 // Cycled is true if a full path has been explored.
 func (ip ImagePath) Cycled() bool {
 	return ip.cycled
@@ -59,7 +69,7 @@ func (ip ImagePath) Len() int {
 
 // Next returns the value of the next pixel.  It starts with position 0 and cycles.
 func (ip *ImagePath) Next() uint8 {
-	v := ip.img.GrayAt(ip.centerPoint.X+ip.path[ip.index].X, ip.centerPoint.Y+ip.path[ip.index].Y).Y
+	v := ip.img.GrayAt(ip.CurrentAbsolute()).Y
 	ip.index++
 	if ip.index >= len(ip.path) {
 		ip.index = 0

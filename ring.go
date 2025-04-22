@@ -4,7 +4,6 @@ package imgpath
 
 import (
 	"errors"
-	"math"
 )
 
 type IndexRing struct {
@@ -44,7 +43,7 @@ func (ir *IndexRing) Reset() {
 type continuousOutput struct {
 	length int
 	start  int
-	angle  float64
+	angle  int // in degree
 	score  int
 	dark   bool
 }
@@ -76,6 +75,16 @@ func continuous(ts []int, fn func(in int) bool) continuousOutput {
 		ii := ir.Next()
 		if fn(ts[ii]) {
 			l++
+			if l >= len(ts) {
+				// continuous line.
+				return continuousOutput{
+					length: 0,
+					start:  0,
+					angle:  0,
+					score:  0,
+					dark:   false,
+				}
+			}
 			score = min(score, abs(ts[ii]))
 			if !continuous {
 				continuous = true
@@ -90,7 +99,7 @@ func continuous(ts []int, fn func(in int) bool) continuousOutput {
 				co.start = start
 				co.score = score
 				a := (3*start + l) % len(ts)
-				co.angle = math.Pi * float64(a) / float64(len(ts))
+				co.angle = 180 * a / len(ts)
 			}
 			l = 0
 			score = 0xFF
