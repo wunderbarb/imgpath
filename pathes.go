@@ -1,7 +1,21 @@
-// v0.2.0
+// v0.2.1
 // Author: wunderbarb
+// © April 2025
 
 package imgpath
+
+// C2 is the path for circle of radius 2
+//
+//	7  0  1
+//	6 --  2
+//	5  4  3
+var C2 = ImagePath{
+	path: []Pos{
+		{0, -1}, {1, -1}, {1, 0}, {1, 1},
+		{0, 1}, {-1, 1}, {-1, 0}, {-1, -1},
+	},
+	centerPoint: Pos{1, 1},
+}
 
 // C3 is the path for circle of radius 3
 //

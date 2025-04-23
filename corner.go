@@ -27,6 +27,28 @@ type ContinuousOutput struct {
 	Darker bool
 }
 
+// AllBrighter checks whether all pixels in the path are brighter or equal to `threshold`.
+func (ip ImagePath) AllBrighter(threshold uint8) bool {
+	ip.Reset()
+	for i := 0; i < len(ip.path); i++ {
+		if ip.Next() < threshold {
+			return false
+		}
+	}
+	return true
+}
+
+// AllDarker checks whether all pixels in the path are darker or equal to `threshold`.
+func (ip ImagePath) AllDarker(threshold uint8) bool {
+	ip.Reset()
+	for i := 0; i < len(ip.path); i++ {
+		if ip.Next() > threshold {
+			return false
+		}
+	}
+	return true
+}
+
 // Continuous checks whether the path has at least `Length` consecutive pixels brighter or darker with the threshold
 // `T`.  It returns the score (the higher, the better) and the momentum `angle`.  It returns the first encountered
 // successful sequence.  It returns the `Darker` flag to indicate whether the path is darker or brighter.

@@ -1,4 +1,5 @@
-// V0.1.0
+// V0.1.1
+// Author: wunderbarb
 
 package imgpath
 
@@ -70,6 +71,14 @@ func TestImagePath_Threshold(t *testing.T) {
 }
 
 // -----------------
+
+func initC2(file string) ImagePath {
+	img, err := GrayFromFile(filepath.Join("testfixtures", file))
+	isPanic(err)
+	c := C2
+	c.SetImage(img)
+	return c
+}
 
 func initC3(file string) ImagePath {
 	img, err := GrayFromFile(filepath.Join("testfixtures", file))

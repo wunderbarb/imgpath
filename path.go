@@ -1,5 +1,6 @@
-// v0.1.3
-// Author: DIEHL E.
+// v0.2.0
+// Author: wunderbarb
+// © April 2025
 
 // Package imgpath manages operations on a path of pixels on a gray-scaled image.
 package imgpath
@@ -39,7 +40,7 @@ func New(ps []Pos) (*ImagePath, error) {
 	return &ip, nil
 }
 
-// All iterates function `fn` over the complete path.
+// All method iterates function `fn` over the complete path.
 func (ip ImagePath) All(fn func(v uint8, index int)) {
 	for i := 0; i < len(ip.path); i++ {
 		j := ip.index
@@ -47,7 +48,7 @@ func (ip ImagePath) All(fn func(v uint8, index int)) {
 	}
 }
 
-// Current returns the position relative to the center of the path of current index.
+// Current returns the current position of the index relative to the center point.
 func (ip ImagePath) Current() (int, int) {
 	return ip.path[ip.index].X, ip.path[ip.index].Y
 }
@@ -62,7 +63,7 @@ func (ip ImagePath) Cycled() bool {
 	return ip.cycled
 }
 
-// Len returns the number of pixels of the path.
+// Len returns the number of pixels in the path.
 func (ip ImagePath) Len() int {
 	return len(ip.path)
 }
@@ -99,6 +100,12 @@ func (ip *ImagePath) SetImage(img image.Image) {
 	ip.img = ig
 }
 
+// SetPath updates the path with the same center and image.
+func (ip *ImagePath) SetPath(p []Pos) {
+	ip.path = p
+	ip.Reset()
+}
+
 // Until iterates over the path until the function `fn` returns false.
 func (ip ImagePath) Until(fn func(v uint8, index int) bool) {
 	for {
@@ -113,7 +120,7 @@ func (ip ImagePath) Until(fn func(v uint8, index int) bool) {
 // first pixel of the path.
 func (ip ImagePath) Diff() []int {
 	nn := make([]int, len(ip.path))
-	vv := ip.grayCenter()
+	vv := ip.AtCenter()
 	ip.All(func(v uint8, index int) {
 		nn[index] = int(v) - int(vv)
 
@@ -123,6 +130,6 @@ func (ip ImagePath) Diff() []int {
 
 // --------------------------
 
-func (ip ImagePath) grayCenter() uint8 {
+func (ip ImagePath) AtCenter() uint8 {
 	return ip.img.GrayAt(ip.centerPoint.X, ip.centerPoint.Y).Y
 }

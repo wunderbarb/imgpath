@@ -1,4 +1,4 @@
-// v0.1.3
+// v0.2.0
 // Author: wunderbarb
 // (c), Apr 2025
 
@@ -145,4 +145,14 @@ func TestImagePath_Continuous(t *testing.T) {
 		Length: 10,
 	})
 	require.False(ok)
+}
+
+func TestImagePath_AllBrighter(t *testing.T) {
+	require, _ := test.Describe(t)
+
+	c2 := initC2("test1.png")
+	c2.SetCenter(2, 2)
+	require.True(c2.AllBrighter(0x80))
+	c3 := initC3("test1.png")
+	require.False(c3.AllBrighter(0x80))
 }
