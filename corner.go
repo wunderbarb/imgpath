@@ -31,7 +31,8 @@ type ContinuousOutput struct {
 func (ip ImagePath) AllBrighter(threshold uint8) bool {
 	ip.Reset()
 	for i := 0; i < len(ip.path); i++ {
-		if ip.Next() < threshold {
+		v := ip.Next()
+		if v < threshold {
 			return false
 		}
 	}
@@ -57,7 +58,7 @@ func (ip ImagePath) Continuous(cai ContinuousInput) (ContinuousOutput, bool) {
 	if co.length >= cai.Length {
 		return ContinuousOutput{
 			Length: co.length,
-			Score:  uint8(co.score),
+			Score:  uint8(co.score), // #nosec G115
 			Angle:  co.angle,
 			Darker: false,
 		}, true
@@ -66,7 +67,7 @@ func (ip ImagePath) Continuous(cai ContinuousInput) (ContinuousOutput, bool) {
 	if co.length >= cai.Length {
 		return ContinuousOutput{
 			Length: co.length,
-			Score:  uint8(co.score),
+			Score:  uint8(co.score), // #nosec G115
 			Angle:  co.angle,
 			Darker: true,
 		}, true
@@ -81,7 +82,13 @@ func (ip ImagePath) ContinuousBrighter(cai ContinuousInput) (uint8, int, bool) {
 	if co.length < cai.Length {
 		return 0, 0.0, false
 	}
-	return uint8(co.score), co.angle, true
+	return uint8(co.score), co.angle, true // #nosec G115
+}
+
+func (ip ImagePath) ContinuousBrighterThan(cai ContinuousInput) bool {
+	ts := ip.Than(cai.T)
+	co := continuousBright(ts)
+	return co.length >= cai.Length
 }
 
 // ContinuousBrighterExact checks whether the path as exactly `Length` consecutive pixels brighter with the threshold
@@ -92,7 +99,7 @@ func (ip ImagePath) ContinuousBrighterExact(cai ContinuousInput) (uint8, bool) {
 	if co.length != cai.Length {
 		return 0, false
 	}
-	return uint8(co.score), true
+	return uint8(co.score), true // #nosec G115
 }
 
 // ContinuousDarker checks whether the path as at least `Length` consecutive pixels darker with the threshold
@@ -102,7 +109,7 @@ func (ip ImagePath) ContinuousDarker(cai ContinuousInput) (uint8, int, bool) {
 	if co.length < cai.Length {
 		return 0, 0.0, false
 	}
-	return uint8(co.score), co.angle, true
+	return uint8(co.score), co.angle, true // #nosec G115
 }
 
 // ContinuousDarkerExact checks whether the path as exactly `Length` consecutive pixels darker with the threshold
@@ -112,7 +119,13 @@ func (ip ImagePath) ContinuousDarkerExact(cai ContinuousInput) (uint8, bool) {
 	if co.length != cai.Length {
 		return 0, false
 	}
-	return uint8(co.score), true
+	return uint8(co.score), true //nolint:gosec
+}
+
+func (ip ImagePath) ContinuousDarkerThan(cai ContinuousInput) bool {
+	ts := ip.Than(cai.T)
+	co := continuousDark(ts)
+	return co.length >= cai.Length
 }
 
 func (ip *ImagePath) process(x, y int, t uint8, fn func([]int) continuousOutput) continuousOutput {

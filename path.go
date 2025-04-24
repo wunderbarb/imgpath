@@ -13,6 +13,7 @@ import (
 // ErrNoPath occurs when creating an ImagePath with no defined path.
 var ErrNoPath = errors.New("no path")
 
+// Pos is a position in the path relative to the center.
 type Pos struct {
 	// X is the horizontal coordinate.
 	X int
@@ -20,7 +21,7 @@ type Pos struct {
 	Y int
 }
 
-// ImagePath is the iterator
+// ImagePath is the iterator of all pixels in the path.
 type ImagePath struct {
 	path        []Pos
 	index       int
@@ -123,6 +124,18 @@ func (ip ImagePath) Diff() []int {
 	vv := ip.AtCenter()
 	ip.All(func(v uint8, index int) {
 		nn[index] = int(v) - int(vv)
+
+	})
+	return nn
+}
+
+
+// Than method provides a slice of the difference between the path and the threshold `t`.  The first value corresponds
+// to the first pixel of the path.
+func (ip ImagePath) Than(t uint8) []int {
+	nn := make([]int, len(ip.path))
+	ip.All(func(v uint8, index int) {
+		nn[index] = int(v) - int(t)
 
 	})
 	return nn
